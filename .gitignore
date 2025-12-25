@@ -6,3 +6,4 @@ transactions.csv
 transactions_analysis.ipynb
 transactions_analysis.py
 visuals/
+.streamlit/
