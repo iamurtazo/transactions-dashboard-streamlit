@@ -371,6 +371,11 @@ def main():
 
     # --- Charts Grid ---
     
+    # --- Privacy Mode ---
+    privacy_mode = st.sidebar.checkbox("Privacy Mode", value=True, help="Hide sensitive transaction details.")
+
+    # --- Charts Grid ---
+    
     # Row 1: Trends & Cash Flow
     r1_cols = st.columns([1.5, 1])
     with r1_cols[0].container(border=True, height=450):
@@ -411,16 +416,42 @@ def main():
 
     with r4_cols[1].container(border=True, height=450):
         st.markdown("### Raw Transaction Data")
-        st.dataframe(
-            filtered_df[['Date', 'Transaction_Type', 'Remarks', 'Transaction_Amount', 'Balance', 'Bank_Name']],
-            use_container_width=True,
-            hide_index=True,
-            column_config={
-                "Date": st.column_config.DatetimeColumn(format="YYYY-MM-DD HH:mm"),
-                "Transaction_Amount": st.column_config.NumberColumn(format="₩%d"),
-                "Balance": st.column_config.NumberColumn(format="₩%d"),
-            }
-        )
+        
+        display_df = filtered_df[['Date', 'Transaction_Type', 'Remarks', 'Transaction_Amount', 'Balance', 'Bank_Name']].copy()
+        
+        if privacy_mode:
+            # Mask sensitive columns
+            display_df['Remarks'] = "****"
+            display_df['Transaction_Amount'] = 0 # or "****" but numeric column might need number for config? 
+            # Actually st.dataframe handles mixed types, but let's be safe and stringify if we want strict masking, 
+            # OR just hide the values. 
+            # Let's stringify specific columns for display to allow "****"
+            display_df['Transaction_Amount'] = "****"
+            display_df['Balance'] = "****"
+            display_df['Bank_Name'] = "****"
+            
+            # Since we changed types to string for masking, column_config number formatting might break or be ignored.
+            # That's fine, security first.
+            st.dataframe(
+                display_df,
+                use_container_width=True,
+                hide_index=True,
+                 column_config={
+                    "Date": st.column_config.DatetimeColumn(format="YYYY-MM-DD HH:mm"),
+                }
+            )
+        else:
+            # Normal Display
+            st.dataframe(
+                display_df,
+                use_container_width=True,
+                hide_index=True,
+                column_config={
+                    "Date": st.column_config.DatetimeColumn(format="YYYY-MM-DD HH:mm"),
+                    "Transaction_Amount": st.column_config.NumberColumn(format="₩%d"),
+                    "Balance": st.column_config.NumberColumn(format="₩%d"),
+                }
+            )
 
 if __name__ == "__main__":
     main()
