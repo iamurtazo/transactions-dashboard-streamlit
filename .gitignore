@@ -1,1 +1,8 @@
 venv/
+.DS_Store
+latest_transactions.xlsx
+formatted_transactions.xlsx
+transactions.csv
+transactions_analysis.ipynb
+transactions_analysis.py
+visuals/
